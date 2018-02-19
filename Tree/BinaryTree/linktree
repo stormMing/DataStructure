@@ -1,4 +1,4 @@
-//二叉树的链表表示法
+//二叉查找树的链表表示法
 #include<iostream>
 #include<cstdlib>
 using namespace std;
