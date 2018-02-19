@@ -76,7 +76,7 @@ BinSearchTree create_BST(int data[],int n)
 //	return NULL;
 //		
 // } 
-
+ 
 BinSearchTree BST_Search(BinSearchTree root,ElementType k) //非递归查找
 {
 	while(root != NULL){
