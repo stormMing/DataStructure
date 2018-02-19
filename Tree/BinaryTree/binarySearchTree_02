@@ -1,0 +1,214 @@
+//二叉查找树的操作：插入（递归及非递归）、查找（递归及非递归）、删除 
+#include<stdio.h>
+#include<stdlib.h>
+typedef int ElementType;
+struct tree{
+	struct tree *left;
+	ElementType data;
+	struct tree *right;
+}; 
+
+typedef struct tree treeNode;
+typedef struct tree *BinSearchTree;
+
+//BinSearchTree BST_Insert(BinSearchTree root,ElementType value) //插入操作，递归实现 
+//{
+//	if(root == NULL){ //如果原树为空，生成并返回一个结点的二叉查找树 
+//		root = (BinSearchTree)malloc(sizeof(treeNode));
+//		root->data = value;
+//		root->left = root->right = NULL;
+//	}	
+//	else{
+//		if(value < root->data)
+//			root->left = BST_Insert(root->left ,value);
+//		else if(value > root->data )
+//			root->right = BST_Insert(root->right ,value);
+//		//相等时，已经存在，则什么都不做 
+//	}
+//	return root;	
+//}
+
+BinSearchTree BST_Insert(BinSearchTree root,ElementType value) //插入操作，非递归实现，效率比递归高 
+{
+	BinSearchTree newNode;
+	BinSearchTree parent;
+	BinSearchTree current;
+	
+	newNode = (BinSearchTree)malloc(sizeof(treeNode));
+	newNode->data = value;
+	newNode->left = newNode->right = NULL;
+	
+	if(root == NULL)
+		return newNode;
+	else{
+		current = root;
+		while(current != NULL){
+			parent = current;
+			if(current->data > newNode->data )
+				current = current->left;
+			else
+				current = current->right;
+		}
+		if(parent->data > newNode->data )
+			parent->left = newNode;
+		else
+			parent->right = newNode; 
+	}
+	return root;	
+ } 
+ 
+BinSearchTree create_BST(int data[],int n)
+{ //构造一棵二叉查找树就是依次输入数据元素，并将它们插入到二叉排序树中的适当位置。
+	BinSearchTree root = NULL;
+	for(int i = 1; i <= n; i++)
+		root = BST_Insert(root,data[i]);
+	return root;
+}
+
+//BinSearchTree BST_Search(BinSearchTree root,ElementType k) //递归查找二叉查找树是否含有元素k 
+//{
+//	if(root->data == k) //此语句也可以写为：if(root->data == k || root == NULL) ,则可省略最后一句 
+//		return root;
+//	else if(root->data > k)
+//		BST_Search(root->left,k);
+//	else
+//		BST_Search(root->right,k);
+//	return NULL;
+//		
+// } 
+
+BinSearchTree BST_Search(BinSearchTree root,ElementType k) //非递归查找
+{
+	while(root != NULL){
+		if(root->data == k)
+			return root;
+		else if(root->data > k)
+			root = root->left;
+		else
+			root = root->right;
+	}
+	return NULL; 
+}	
+
+BinSearchTree BST_SearchMin(BinSearchTree root)  
+{
+	if(root == NULL) return NULL;
+	else if(root->left == NULL) return root; //如果左子树为NULL，则根结点就是最小的
+	else return BST_SearchMin(root->left); //否则递归查找左子树 
+}
+
+//int BST_SearchMin(BinSearchTree root) //查找最小值，非递归实现 
+//{
+//	if(root != NULL){
+//		while(root->left != NULL)
+//			root = root->left ;
+//	}
+//	return root->data ;
+//}
+
+//BinSearchTree BST_SearchMax(BinSearchTree root)//查找最大值，递归实现
+//{
+//	if(root != NULL){
+//		while(root->right)
+//			root = root->right ;
+//	}
+//	return root;	
+// } 
+ 
+ BinSearchTree BST_SearchMax(BinSearchTree root)//查找最大值，非递归实现
+ {
+ 	if(root == NULL) return NULL;
+ 	else if(root->right == NULL) return root;
+ 	else return BST_SearchMax(root->right );
+  } 
+  
+BinSearchTree BST_Delete(BinSearchTree root,ElementType x) //删除操作 
+{
+	BinSearchTree tem;
+	if(root == NULL)
+		printf("要删除的元素未找到");
+	else{ //要删除，那就要先找到这个结点 
+		if(x < root->data )
+			root->left = BST_Delete(root->left ,x);
+		else if(x > root->data )
+			root->right = BST_Delete(root->right ,x);
+		else{  //找到了要删除的结点 
+		
+			if(root->left && root->right != NULL){ //如果被删除的结点有左右两个结点 
+				tem = BST_SearchMin(root->right ); //从右子树中找到最小的元素代替要删除的元素，或左子树中最大的 
+				root->data = tem->data ;
+				root->right = BST_Delete(root->right,root->data); //然后再删除右子树中的这个最小元素，再调用这个算法即可 
+			}
+			
+			else{ //被删除的结点有一个或没有结点 
+				tem = root;
+				if(!root->left) //只有右孩子或无子结点 
+					root = root->right ;
+				else                  //只有左孩子 
+					root = root->left ;		 
+				free(tem);
+			} 
+		}
+	}
+	return root; 
+}  
+  
+void print(BinSearchTree root) //中序遍历 
+{
+	if(root){
+		print(root->left);
+		printf("%d ",root->data );
+		print(root->right );
+	} 
+}
+
+int main()
+{
+	int i,n;
+	BinSearchTree root = NULL;
+	scanf("%d",&n);
+	int node[n+1];
+	for(i = 1; i <= n; i++)
+		scanf("%d",&node[i]);
+	
+	root = create_BST(node,n);
+	
+	printf("查找操作\n");
+	int k;
+	printf("请输入你要查找的数:");
+	scanf("%d",&k);
+	BinSearchTree temp = BST_Search(root,k);
+	if(temp == NULL)
+		printf("%d不存在\n\n",k);
+	else
+		printf("%d存在\n\n",temp->data );
+		
+		
+	printf("查找最小值\n");
+	BinSearchTree t = BST_SearchMin(root);
+	if(t == NULL)
+		printf("树为空，最小值不存在\n\n");
+	else
+		printf("查找的最小值为：%d\n\n",t->data); 
+		
+		
+	printf("查找最大值\n");
+	BinSearchTree t2 = BST_SearchMax(root);
+	if(t2 == NULL)
+		printf("树为空，最大值不存在\n\n");
+	else
+		printf("查找的最大值为：%d\n\n",t2->data); 
+		
+	
+	printf("删除操作\n");
+	int m;
+	printf("删除前：");
+	print(root);
+	printf("\n请输入要删除的元素：");
+	scanf("%d",&m);
+	root = BST_Delete(root,m);
+	printf("删除后：");
+	print(root);
+		
+	return 0;
+}
