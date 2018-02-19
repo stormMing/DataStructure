@@ -1,0 +1,77 @@
+//二叉查找树的二分查找法
+#include<stdio.h>
+#include<stdlib.h>
+int N;
+
+struct tree{
+	struct tree * left;
+	int data;
+	struct tree * right; 
+}; 
+
+typedef struct tree treeNode;
+typedef struct tree *BST;
+
+BST create(int *node,int position)  //将输入的数组表示的二叉查找树转为链表表示 
+{
+	BST newNode;
+	if(node[position] == 0 || position > N)
+		return NULL;
+	else{
+		newNode = (BST)malloc(sizeof(treeNode));
+		newNode->data = node[position];
+		newNode->left = create(node,2*position);
+		newNode->right = create(node,2*position + 1);
+		return newNode;
+	} 
+}
+
+void print(BST root)  //中序遍历 
+{
+	if(root != NULL){
+		print(root->left );
+		printf("%d ",root->data );
+		print(root->right );
+	}
+}
+
+BST search(BST point ,int locate)  //二分查找 
+{
+	while(point != NULL){
+		if(point->data == locate)
+			return point;
+		else{
+			if(point->data > locate)
+				point = point->left ;
+			else 
+				point = point->right;
+		}
+	}
+	return NULL;
+ } 
+ 
+int main()
+{
+	int i =  1,temp,locate;
+	BST root = NULL;
+	BST point = NULL;
+	int node[10000]; //当程序超过10000时会导致程序的崩溃
+	while(scanf("%d",&temp)){
+		node[i++] = temp;
+	}
+	N = i - 1; //输入的结点数 
+//	int node[16]={0 ,5, 2, 9, 1, 4, 7, 0, 0, 0, 3, 0, 6, 8, 0, 0};
+//	N = 16;
+	root = create(node,1); 
+	print(root);
+	printf("\n请输入欲查找的结点值：");
+	scanf("%d",&locate);
+	
+	point = search(root,locate);
+	if(point != NULL)
+		printf("The value is [%d]\n",point->data );
+	else
+		printf("Not find!\n");
+		
+	return 0; 
+}
