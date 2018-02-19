@@ -1,0 +1,41 @@
+//构造数组二叉查找树
+#include<iostream>
+#define MAXN 32768
+using namespace std;
+int tree[MAXN];  //所有数组均从 1 开始
+
+int create(int tree[],int node[],int len)
+{
+	int i,MAX = 1;
+	int j = 1; //二叉查找树的元素下标
+	tree[1] = node[1];
+	for(i = 2; i <= len; i++){
+		j = 1;
+		while(tree[j] != 0){ //如果此结点有值 
+			if(node[i] < tree[j])
+				j = j * 2;
+			else
+				j = j * 2 + 1;
+		
+			if(MAX < j)
+				MAX = j; //用来存储二叉树最后一个元素的下标，便于通过数组输出 
+		}
+		
+		tree[j] = node[i]; 
+	}
+	return MAX; 
+}
+int main()
+{
+	int n,num;
+	cin>>n;
+	int node[n+1];//存放输入的数据
+	for(int i = 1; i <= n; i++)
+		cin>>node[i];
+	
+	num = create(tree,node,n); 
+	for(int i = 1; i <= num ; i++)
+		cout<<tree[i]<<' ';
+//	cout<<tree[num]<<endl;
+	return 0; 
+ } 
