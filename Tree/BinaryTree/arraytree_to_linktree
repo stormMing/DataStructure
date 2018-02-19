@@ -1,0 +1,52 @@
+//二叉查找树的数组表示法转为链表表示法
+#include<iostream>
+#include<cstdlib>
+using namespace std;
+
+struct tree{
+	struct tree *left;
+	int data;
+	struct tree *right;
+}; 
+typedef struct tree treeNode;
+typedef struct tree *BT;
+int N;
+
+BT create(int *node,int position)
+{
+	BT newNode;
+	if(node[position] == 0 || position > N)
+		return NULL;
+	else{
+		newNode = (BT)malloc(sizeof(treeNode));
+		newNode->data = node[position];
+		newNode->left = create(node,2*position);
+		newNode->right = create(node,2*position+1);
+		return newNode;
+	}	
+}
+
+void print(BT root) //中序遍历 
+{
+	if(root != NULL){
+		print(root->left );
+		printf("%d ",root->data );
+		print(root->right );
+	}
+	
+}
+
+int main()
+{
+	int i = 1,temp;
+	int node[10000]; //当程序超过10000时会导致程序的崩溃
+	BT root = NULL; 
+	while(cin>>temp)  //当不知道结点数有多少时，可以这样写 
+		node[i++] = temp;
+	
+	N = i - 1; //一共输入的结点数
+	root = create(node,1);
+	print(root);
+	cout<<endl;
+	return 0; 
+}
