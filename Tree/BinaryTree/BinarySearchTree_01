@@ -1,0 +1,232 @@
+//二叉查找树的相关操作
+/*
+- 5 求树的深度
+- 6 求二叉树第k层的节点个数
+- 7 先序遍历输出二叉树的所有叶结点
+- 8 判断两棵二叉树是否结构相同(不考虑数据内容)
+- 9 求二叉树的镜像
+- 10 求两个节点的最低公共祖先节点
+- 11 求任意两节点距离
+- 12 找出二叉树中某个节点的所有祖先节点
+*/
+#include<cstdlib>
+#include<cstdio>
+using namespace std;
+
+struct tree{
+	struct tree *left;
+	int data;
+	struct tree *right;
+}; 
+
+typedef struct tree treeNode;
+typedef struct tree * BinTree;
+
+BinTree insert(BinTree root,int node)
+{
+	BinTree newNode;
+	BinTree current;
+	BinTree parent;
+	
+	newNode = (BinTree)malloc(sizeof(treeNode));
+	newNode->data = node;
+	newNode->left = newNode->right = NULL;
+	
+	if(root == NULL)
+		return newNode;
+	else{
+		current = root;
+		while(current != NULL){
+			parent = current;
+			if(current->data > newNode->data )
+				current = current->left ;
+			else
+				current = current->right ;
+		}
+		if(parent->data > newNode->data )
+			parent->left = newNode;
+		else
+			parent->right = newNode;
+	}
+	return root;	
+}
+
+BinTree create(int *data,int len)  //构建二叉树 
+{
+	int i;
+	BinTree root = NULL;
+	for(i = 1; i <= len; i++)
+		root = insert(root,data[i]);
+	return root;
+}
+
+int GetHeight(BinTree root)
+{
+	int HL,HR,MaxH;
+	
+	if(root != NULL){
+		HL = GetHeight(root->left );
+		HR = GetHeight(root->right );
+		MaxH = HL > HR ? HL : HR;
+		return (MaxH + 1);
+	}
+	else    //叶结点高度为1，所以空树高度为0 
+		return 0;
+ } 
+ 
+int GetKLevel(BinTree root,int k) //求二叉树第k层的结点个数 
+{
+	if(root == NULL || k < 1)
+		return 0;
+	if(k == 1)
+		return 1;
+	return GetKLevel(root->left,k-1) + GetKLevel(root->right,k-1); 
+}
+
+bool StructCmp(BinTree root,BinTree root2) //比较两棵二叉树的结构是否相同(不考虑数据内容)
+{
+	if(root == NULL && root2 == NULL)
+		return true;
+	else if(root == NULL || root2 == NULL)
+		return false;
+	bool result_left = StructCmp(root->left ,root2->left );
+	bool result_right = StructCmp(root->right , root2->right );
+	return result_left && result_right;
+}
+
+void Mirror(BinTree root) //求二叉树的镜像，即对每一个结点，交换它的左右孩子即可 
+{
+	BinTree temp;
+	if(root == NULL)
+		return;
+	temp = root->left ;
+	root->left = root->right ;
+	root->right = temp;
+	Mirror(root->left);
+	Mirror(root->right);
+ } 
+ 
+void PreorderPrintLeaves(BinTree root) // 输出二叉树中的所有叶结点 
+{
+	if(root != NULL){
+		if(root->left == NULL && root->right == NULL) //如果某结点的左右子树都为空，那么它就是叶结点 
+		printf("%d ",root->data );
+		PreorderPrintLeaves(root->left ); //先序遍历输出的 
+		PreorderPrintLeaves(root->right );
+	}
+} 
+
+BinTree FindLCA(BinTree root,BinTree target1,BinTree target2) //求两个结点的最近公共祖先结点 
+{
+	if(root == NULL)
+		return NULL;
+	if(root == target1 || root == target2) //如果其中一个是root结点 
+		return root;
+	BinTree left = FindLCA(root->left ,target1,target2);
+	BinTree right = FindLCA(root->right ,target1,target2);
+	if(left && right) //如果target分别在左右子树
+		return root; //返回它们的根节点 
+	return left ? left : right; //都在左子树或右子树 
+}
+
+int FindLevel(BinTree root,BinTree target)
+{
+	if(root == NULL)
+		return -1;
+	if(root == target)
+		return 0;
+	int level = FindLevel(root->left ,target); //先在左子树找
+	if(level == -1)
+		level = FindLevel(root->right ,target); //如果在左子树中没有找到target，在右子树找
+	if(level != -1) //如果找到了，回溯
+		return level + 1;
+	//当 level = FindLevel(root->left ,target); root->left == target 时，此次调用会返回 0;
+	// 这一步向下走，level = 0, 回溯，返回root和target间的距离 level+1 
+	return -1; //如果左右子树都没有找到 
+}
+
+int DistanceNodes(BinTree root,BinTree target1,BinTree target2) //求任意两结点间的距离 
+{
+	BinTree lca = FindLCA(root,target1,target2);//先找到最近公共祖先结点
+	int level1 = FindLevel(lca,target1); //分别计算出target1、target2 距离祖先结点的距离
+	int level2 = FindLevel(lca,target2);
+	return level1 + level2;	
+}
+
+bool FindAllAncerstors(BinTree root,BinTree target) //找出二叉树中某个结点的所有祖先结点 
+{
+	if(root == NULL)
+		return false;
+	if(root == target)
+		return true;
+	if(FindAllAncerstors(root->left ,target) || FindAllAncerstors(root->right ,target)){ //找到了 
+		printf("%d ",root->data);
+		return true; //回溯 
+	}
+	return false; //如果左右子树都没有找到 
+}
+
+void print(BinTree root) //中序打印 
+{
+	if(root != NULL){
+		print(root->left );
+		printf("%d ",root->data );
+		print(root->right );
+	}
+}
+int main()
+{
+	int i,n;
+	BinTree root = NULL;
+	scanf("%d",&n);
+	int node[n+1];
+	for(i = 1; i <= n; i++)
+		scanf("%d",&node[i]);
+	
+	root = create(node,n);
+	int height = GetHeight(root); 
+	printf("树的高度为：%d\n",height);
+	
+	int k;
+	printf("请输入你要计算哪一层的结点数：");
+	scanf("%d",&k);
+	printf("第%d层共有%d个结点\n\n",k,GetKLevel(root,k));
+	
+	printf("先序遍历输出二叉树的所有叶结点\n");
+	PreorderPrintLeaves(root); 
+	
+	printf("\n求两个结点的最近公共祖先结点\n");
+	BinTree tempTree = FindLCA(root,root->left->left,root->right->right);
+	printf("最近公共祖先结点是：%d\n\n",tempTree->data );
+	
+	printf("求任意两结点间的距离\n");
+	int dis = DistanceNodes(root,root->left->left ,root->right->right );
+	printf("这两个结点间的距离为：%d\n\n",dis);
+	
+	printf("找出二叉树中某个结点的所有祖先结点:");
+	FindAllAncerstors(root,root->left->right->left);
+	 
+	printf("\n\n求该二叉树的镜像\n");
+	printf("变换前的二叉树：");
+	print(root); 
+	Mirror(root);
+	printf("\n变换后的二叉树：");
+	print(root);
+	
+	
+	printf("\n---------------------------\n");
+	
+	printf("下面输入另一个二叉树，用于比较它们的结构是否相同(不考虑数据内容)\n");
+	int node2[n+1];
+	BinTree root2 = NULL;
+	for(i = 1; i <= n; i++)
+		scanf("%d",&node2[i]);
+	root2 = create(node2,n);
+	printf("它们的结构是否相同：%d",StructCmp(root,root2));
+	//C语言中没有bool类型，其布尔值true/false分别用1/0来表示，可以用整型打印输出来查看其真假。
+	 
+	printf("\n---------------------------\n");
+	
+	
+	return 0;
+}
