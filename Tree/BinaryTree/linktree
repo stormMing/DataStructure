@@ -1,0 +1,77 @@
+//二叉树的链表表示法
+#include<iostream>
+#include<cstdlib>
+using namespace std;
+
+struct tree{
+	struct tree *left;
+	int data;
+	struct tree *right;
+}; 
+typedef struct tree treeNode;
+typedef struct tree *BT;
+
+BT insert(BT root,int node)
+{
+	BT newNode;
+	BT current;
+	BT parent;
+	
+	newNode = (BT)malloc(sizeof(treeNode));
+	newNode->left = newNode->right = NULL;
+	newNode->data = node;
+	
+	if(root == NULL)
+		return newNode;  //第一个结点建立 
+	else{
+		current = root; //存储当前要比较的结点，从root开始 
+		while(current != NULL){
+			parent = current; //存储父结点,比current要滞后，当current不存在时，循环退出，parent仍然是上一个current，此时可以通过parent插入一个新结点 
+  			if(current->data > newNode->data ) //如果当前结点比新插入的结点大，那么比较当前结点的left 
+  				current = current->left ;
+  			else
+  				current = current->right ;
+		}
+		
+		if(parent->data > newNode->data )
+			parent->left = newNode; //新结点插在左边 
+		else                            
+			parent->right = newNode; //否则插在右边 
+	}
+	return root;
+}
+
+
+
+BT create(int *data,int len) //建立二叉树 
+{
+	int i;
+	BT root = NULL;
+	for(i = 1; i <= len; i++)
+		root = insert(root,data[i]);
+	return root;	
+}
+
+void print(BT root)  //先序递归遍历二叉树 
+{
+	if(root != NULL){
+		printf("%d ",root->data );
+		print(root->left );
+		print(root->right );
+	}
+}
+
+int main()
+{
+	int i,n;
+	BT root = NULL;
+	cin>>n;
+	int node[n+1];
+	for(i = 1; i <= n; i++)
+		cin>>node[i];
+	
+	root = create(node,n);
+	print(root);
+	cout<<endl;
+	return 0;
+}
