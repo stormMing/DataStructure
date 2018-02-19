@@ -1,0 +1,68 @@
+//堆排序算法--建造最大堆，排序为从小到大 
+#include<stdio.h>
+#define N 100
+typedef int ElementType;
+
+void HeapAdjust(ElementType arr[],int p,int len)
+{
+	int parent,child;
+	ElementType x;
+	
+	x = arr[p]; 
+	for(parent = p; parent * 2 <= len; parent = child){
+		child = parent * 2;
+		if((child != len) && (arr[child] < arr[child + 1]))
+			child++;
+		if(x >= arr[child]) break;
+		else
+			arr[parent] = arr[child];
+	}
+	arr[parent] = x;
+}
+
+void BuildHeap(ElementType arr[],int length) //先建堆 
+{
+	int i;
+	for(i = length / 2; i > 0; i--)
+		HeapAdjust(arr,i,length); 
+}
+
+void Swap(ElementType *m,ElementType *n)
+{
+	ElementType temp = *m; 
+	*m = *n; 
+	*n = temp;	
+ } 
+ 
+void HeapSort(ElementType arr[],int nlength)  //堆排序算法 
+{
+	BuildHeap(arr,nlength);
+	for(int i = nlength; i >= 1; i--){
+		Swap(&arr[1],&arr[i]); //把第一个元素和当前的最后一个元素交换, 保证当前的最后一个位置的元素都是在现在的这个序列之中最大的   
+		HeapAdjust(arr,1,i-1); //重新调整堆为最大堆 
+	}
+}
+
+void Print(ElementType arr[],int n)
+{
+	int i;
+	for(i = 1; i <= n; i++)
+		printf("%d ",arr[i]);
+	printf("\n");
+}
+
+
+int main()
+{
+	ElementType arr[N];
+	int size;
+	while(scanf("%d",&size) && size > 0){
+		int i;
+		for(i = 1; i <= size; i++)
+			scanf("%d",&arr[i]);
+		Print(arr,size);       
+		HeapSort(arr,size); //堆排序
+		Print(arr,size);   //堆排序之后  
+	}
+	return 0; 
+ } 
